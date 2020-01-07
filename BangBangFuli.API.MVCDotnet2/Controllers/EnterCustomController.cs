@@ -61,6 +61,37 @@ namespace BangBangFuli.API.MVCDotnet2.Controllers
 
         #region 商品
 
+        public IActionResult ProductList()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ProductListData(int page, int limit)
+        {
+            List<ProductInformationViewModel> productInfolist = new List<ProductInformationViewModel>();
+            var users = _productInformationService.GetList("", page, limit);
+            if (users.Item1 != null && users.Item1.Count > 0)
+            {
+                foreach (var user in users.Item1)
+                {
+                    UserViewModel vm = new UserViewModel();
+                    vm.CreateTime = user.CreateTime.ToString("yyyy-MM-dd");
+                    vm.ID = user.Id;
+                    vm.Name = user.Name;
+                    if (user.RoleID > 0)
+                    {
+                        var info = _userRoleService.Get(user.RoleID);
+                        if (info != null)
+                            vm.RoleName = info.RoleName;
+                    }
+                    vm.TelPhone = user.TelPhone;
+                    vm.UserName = user.UserName;
+                    userlist.Add(vm);
+                }
+            }
+            return Json(new { code = 0, msg = "", count = users.Item2, data = userlist.ToArray() });
+        }
+
         /// <summary>
         /// 商品页面
         /// </summary>
@@ -86,6 +117,8 @@ namespace BangBangFuli.API.MVCDotnet2.Controllers
             }
             return View(productViewModelList);
         }
+
+
 
         /// <summary>
         /// 新建商品页面
